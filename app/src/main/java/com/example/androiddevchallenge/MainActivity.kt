@@ -25,6 +25,7 @@ import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 // Start building your app here!
 @Composable
 fun MyApp() {
-    val DEFAULT_SECS = 20L * 1000L
+    val DEFAULT_SECS = 15L * 1000L
     val timerVM = TimerVM(DEFAULT_SECS)
     val cntDownTmr = TimerCountDown(timerVM)
     val howManySecs: Long by timerVM.msecsRemaining.observeAsState(DEFAULT_SECS)
@@ -76,7 +77,6 @@ fun MyApp() {
         Column(modifier = Modifier.padding(8.dp)) {
 
             Dancer(howManySec = howManySecs)
-            Spacer(modifier = Modifier.padding(8.dp))
             ClockDisplay(howManySec = howManySecs)
             Spacer(modifier = Modifier.padding(8.dp))
             if (!timerRunning) {
@@ -106,16 +106,12 @@ fun Dancer(howManySec: Long) {
             true -> Image(
                 painter = painterResource(id = R.drawable.dance1),
                 contentDescription = "dancer",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(1.0f)
+                modifier = Modifier.fillMaxWidth(1.0f)
             )
             false -> Image(
                 painter = painterResource(id = R.drawable.dance2),
                 contentDescription = "dancer2",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(1.0f)
+                modifier = Modifier.fillMaxWidth(1.0f)
             )
         }
     }
@@ -126,7 +122,7 @@ fun Dancer(howManySec: Long) {
 // Start building your app here!
 @Composable
 fun ClockDisplay(howManySec: Long) {
-    val textToShow = if (howManySec > 0) "$howManySec seconds" else "Finished!"
+    val textToShow = if (howManySec > 0) "${howManySec / 1000} seconds" else "Finished!"
 
     val transition = updateTransition(targetState = howManySec)
     val dpText = transition.animateDp() {
@@ -138,13 +134,17 @@ fun ClockDisplay(howManySec: Long) {
     }
 
     if (howManySec > 0) {
+
         Text(
             modifier = Modifier
+                .border(0.dp, Color.White)
                 .fillMaxWidth(1.0f)
-                .padding(dpText.value, dpText.value, dpText.value, dpText.value)
-                .background(backgroundColor.value, RoundedCornerShape(10)),
+                .padding(dpText.value, 1.dp, dpText.value, dpText.value)
+                .border(2.dp, Color.Magenta)
+                .background(backgroundColor.value, RoundedCornerShape(10))
+                .padding(dpText.value, dpText.value, dpText.value, dpText.value),
             text = textToShow,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     } else {
         Text(

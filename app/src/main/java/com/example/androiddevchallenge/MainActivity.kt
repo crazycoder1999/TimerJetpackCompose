@@ -22,8 +22,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,10 +38,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 // Start building your app here!
 @Composable
 fun MyApp() {
-    val DEFAULT_SECS = 10L * 1000L
+    val DEFAULT_SECS = 20L * 1000L
     val timerVM = TimerVM(DEFAULT_SECS)
     val cntDownTmr = TimerCountDown(timerVM)
     val howManySecs: Long by timerVM.msecsRemaining.observeAsState(DEFAULT_SECS)
@@ -72,6 +74,9 @@ fun MyApp() {
 
     Surface(color = MaterialTheme.colors.background, modifier = Modifier.fillMaxWidth(1.0f)) {
         Column(modifier = Modifier.padding(8.dp)) {
+
+            Dancer(howManySec = howManySecs)
+            Spacer(modifier = Modifier.padding(8.dp))
             ClockDisplay(howManySec = howManySecs)
             Spacer(modifier = Modifier.padding(8.dp))
             if (!timerRunning) {
@@ -92,6 +97,32 @@ fun MyApp() {
     }
 }
 
+@Composable
+fun Dancer(howManySec: Long) {
+    val (dancerLeft, setDancer) = remember { mutableStateOf(howManySec % 1000L == 0L) }
+
+    Crossfade(targetState = dancerLeft) { theDancer ->
+        when (theDancer) {
+            true -> Image(
+                painter = painterResource(id = R.drawable.dance1),
+                contentDescription = "dancer",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(1.0f)
+            )
+            false -> Image(
+                painter = painterResource(id = R.drawable.dance2),
+                contentDescription = "dancer2",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(1.0f)
+            )
+        }
+    }
+
+    setDancer(howManySec % 1000L == 0L)
+}
+
 // Start building your app here!
 @Composable
 fun ClockDisplay(howManySec: Long) {
@@ -106,25 +137,23 @@ fun ClockDisplay(howManySec: Long) {
         if (it % 1000L == 0L) Color.Yellow else Color.Cyan
     }
 
-    Crossfade(targetState = howManySec, animationSpec = tween(3000)) {
-        if (howManySec > 0) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(1.0f)
-                    .padding(dpText.value, dpText.value, dpText.value, dpText.value)
-                    .background(backgroundColor.value, RoundedCornerShape(10)),
-                text = textToShow,
-                textAlign = TextAlign.Center
-            )
-        } else {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(1.0f)
-                    .background(Color.Green, RoundedCornerShape(10)),
-                text = textToShow,
-                textAlign = TextAlign.Center, fontSize = 32.sp
-            )
-        }
+    if (howManySec > 0) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth(1.0f)
+                .padding(dpText.value, dpText.value, dpText.value, dpText.value)
+                .background(backgroundColor.value, RoundedCornerShape(10)),
+            text = textToShow,
+            textAlign = TextAlign.Center
+        )
+    } else {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth(1.0f)
+                .background(Color.Green, RoundedCornerShape(10)),
+            text = textToShow,
+            textAlign = TextAlign.Center, fontSize = 32.sp
+        )
     }
 }
 
